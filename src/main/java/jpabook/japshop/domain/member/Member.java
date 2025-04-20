@@ -3,6 +3,7 @@ package jpabook.japshop.domain.member;
 import jakarta.persistence.*;
 import jpabook.japshop.domain.common.Address;
 import jpabook.japshop.domain.order.Order;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,4 +30,10 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Order> orders = new ArrayList<>();
+
+    @Builder
+    public Member(String name, Address address) {
+        this.name = name;
+        this.address = address;
+    }
 }

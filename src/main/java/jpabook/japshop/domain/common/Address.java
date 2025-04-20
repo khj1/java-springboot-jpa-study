@@ -1,11 +1,18 @@
 package jpabook.japshop.domain.common;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.persistence.Embeddable;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@RequiredArgsConstructor
+@Getter
+@Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Address {
 
-    private final String city;
-    private final String street;
-    private final String zipCode;
+    private String city;
+    private String street;
+    private String zipCode;
 }
