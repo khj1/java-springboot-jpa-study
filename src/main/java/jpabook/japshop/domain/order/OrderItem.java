@@ -22,4 +22,23 @@ public class OrderItem {
     private int orderPrice;
 
     private int count;
+
+    private OrderItem(Item item, int count) {
+        this.item = item;
+        this.count = count;
+        this.orderPrice = calculateOrderPrice(item, count);
+    }
+
+    private int calculateOrderPrice(Item item, int count) {
+        return item.getPrice() * count;
+    }
+
+    public static OrderItem create(Item item, int count) {
+        item.removeStock(count);
+        return new OrderItem(item, count);
+    }
+
+    public void linkToOrder(Order order) {
+        this.order = order;
+    }
 }

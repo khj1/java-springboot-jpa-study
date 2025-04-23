@@ -31,4 +31,11 @@ public abstract class Item {
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
     private List<CategoryItem> categoryItems = new ArrayList<>();
+
+    public void removeStock(int count) {
+        if (stockQuantity < count) {
+            throw new IllegalArgumentException("재고가 부족합니다.");
+        }
+        stockQuantity -= count;
+    }
 }
