@@ -48,4 +48,11 @@ public class OrderService {
         return memberRepository.findById(request.memberId())
             .orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
     }
+
+    public void cancelOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다."));
+
+        order.cancel();
+    }
 }

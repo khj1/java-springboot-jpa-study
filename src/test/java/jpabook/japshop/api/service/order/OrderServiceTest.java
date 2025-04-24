@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+import static jpabook.japshop.domain.order.OrderStatus.CANCELED;
 import static jpabook.japshop.domain.order.OrderStatus.ORDER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -59,14 +60,14 @@ class OrderServiceTest {
 
         //when
         OrderCreateResponse response = orderService.createOrder(request);
-        Order savedOrder = orderRepository.findById(response.itemId())
+        Order savedOrder = orderRepository.findById(response.orderId())
             .orElseThrow(() -> new AssertionError("주문이 저장되지 않았습니다."));
 
         //then
         assertAll(
             // response 상태 점검
             () -> assertThat(response).isNotNull(),
-            () -> assertThat(response.itemId()).isEqualTo(savedOrder.getId()),
+            () -> assertThat(response.orderId()).isEqualTo(savedOrder.getId()),
 
             // 주문 Entity 상태 점검
             () -> assertThat(savedOrder.getOrderItems()).hasSize(1),
@@ -111,10 +112,31 @@ class OrderServiceTest {
     @Test
     void cancelOrder() {
         //given
+        LocalDateTime now = LocalDateTime.of(2025, 4, 23, 0, 0);
+        Address address = new Address("city", "street", "zipCode");
+
+        Member member = createMember(address);
+        Member savedMember = memberRepository.save(member);
+
+        Album album = createAlbum(10);
+        Album savedAlbum = itemRepository.save(album);
+
+        OrderCreateRequest request = createOrderRequest(savedMember, savedAlbum, now);
+        OrderCreateResponse response = orderService.createOrder(request);
 
         //when
+        orderService.cancelOrder(response.orderId());
 
         //then
+        Order cancelledOrder = orderRepository.findById(response.orderId())
+            .orElseThrow(() -> new AssertionError("주문이 존재하지 않습니다."));
+        Item item = itemRepository.findById(savedAlbum.getId())
+            .orElseThrow(() -> new AssertionError("상품이 존재하지 않습니다."));
+
+        assertAll(
+            () -> assertThat(cancelledOrder.getOrderStatus()).isEqualTo(CANCELED),
+            () -> assertThat(item.getStockQuantity()).isEqualTo(10)
+        );
     }
 
     @DisplayName("주문을 검색한다.")

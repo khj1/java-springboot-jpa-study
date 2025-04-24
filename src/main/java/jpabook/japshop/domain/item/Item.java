@@ -38,4 +38,8 @@ public abstract class Item {
         }
         stockQuantity -= count;
     }
+
+    public void addStock(int count) {
+        stockQuantity += count;
+    }
 }

@@ -35,4 +35,8 @@ public class Delivery {
     public static Delivery of(Address address, DeliveryStatus deliveryStatus) {
         return new Delivery(address, deliveryStatus);
     }
+
+    public void cancel() {
+        deliveryStatus = DeliveryStatus.CANCELLED;
+    }
 }

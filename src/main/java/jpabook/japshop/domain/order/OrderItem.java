@@ -41,4 +41,8 @@ public class OrderItem {
     public void linkToOrder(Order order) {
         this.order = order;
     }
+
+    public void cancel() {
+        item.addStock(count);
+    }
 }
