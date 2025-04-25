@@ -1,7 +1,9 @@
 package jpabook.japshop.api.service.order;
 
 import jpabook.japshop.api.service.order.request.OrderCreateRequest;
+import jpabook.japshop.api.service.order.request.OrderSearchCondition;
 import jpabook.japshop.api.service.order.response.OrderCreateResponse;
+import jpabook.japshop.api.service.order.response.OrderResponse;
 import jpabook.japshop.domain.delivery.Delivery;
 import jpabook.japshop.domain.item.Item;
 import jpabook.japshop.domain.item.ItemRepository;
@@ -13,6 +15,8 @@ import jpabook.japshop.domain.order.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static jpabook.japshop.domain.delivery.DeliveryStatus.READY;
 
@@ -54,5 +58,9 @@ public class OrderService {
             .orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다."));
 
         order.cancel();
+    }
+
+    public List<OrderResponse> findAllBy(OrderSearchCondition orderSearchCondition) {
+        return orderRepository.findAll(orderSearchCondition);
     }
 }

@@ -1,7 +1,9 @@
 package jpabook.japshop.api.service.order;
 
 import jpabook.japshop.api.service.order.request.OrderCreateRequest;
+import jpabook.japshop.api.service.order.request.OrderSearchCondition;
 import jpabook.japshop.api.service.order.response.OrderCreateResponse;
+import jpabook.japshop.api.service.order.response.OrderResponse;
 import jpabook.japshop.domain.common.Address;
 import jpabook.japshop.domain.delivery.DeliveryStatus;
 import jpabook.japshop.domain.item.Album;
@@ -19,11 +21,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static jpabook.japshop.domain.order.OrderStatus.CANCELED;
 import static jpabook.japshop.domain.order.OrderStatus.ORDER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
@@ -50,7 +54,7 @@ class OrderServiceTest {
         LocalDateTime now = LocalDateTime.of(2025, 4, 23, 0, 0);
         Address address = new Address("city", "street", "zipCode");
 
-        Member member = createMember(address);
+        Member member = createMember("유저", address);
         Member savedMember = memberRepository.save(member);
 
         Album album = createAlbum(10);
@@ -94,7 +98,7 @@ class OrderServiceTest {
         LocalDateTime now = LocalDateTime.of(2025, 4, 23, 0, 0);
         Address address = new Address("city", "street", "zipCode");
 
-        Member member = createMember(address);
+        Member member = createMember("유저", address);
         Member savedMember = memberRepository.save(member);
 
         Album album = createAlbum(1);
@@ -115,7 +119,7 @@ class OrderServiceTest {
         LocalDateTime now = LocalDateTime.of(2025, 4, 23, 0, 0);
         Address address = new Address("city", "street", "zipCode");
 
-        Member member = createMember(address);
+        Member member = createMember("유저", address);
         Member savedMember = memberRepository.save(member);
 
         Album album = createAlbum(10);
@@ -143,10 +147,37 @@ class OrderServiceTest {
     @Test
     void searchOrder() {
         //given
+        LocalDateTime now = LocalDateTime.of(2025, 4, 23, 0, 0);
+        Address address = new Address("city", "street", "zipCode");
+
+        Member member = createMember("유저", address);
+        Member savedMember = memberRepository.save(member);
+
+        Album album = createAlbum(10);
+        Album savedAlbum = itemRepository.save(album);
+
+        OrderCreateRequest request = createOrderRequest(savedMember, savedAlbum, now);
+        OrderCreateResponse orderCreateResponse = orderService.createOrder(request);
+
+        OrderSearchCondition orderSearchCondition = new OrderSearchCondition("유저", ORDER);
 
         //when
+        List<OrderResponse> orderResponse = orderService.findAllBy(orderSearchCondition);
 
         //then
+        assertThat(orderResponse)
+            .usingRecursiveFieldByFieldElementComparator()
+            .extracting("orderId", "memberName", "orderDate", "orderStatus", "address")
+            .containsExactlyInAnyOrder(
+                tuple(orderCreateResponse.orderId(), "유저", now, ORDER, address)
+            );
+    }
+
+    private static Member createMember(String memberName, Address address) {
+        return Member.builder()
+            .name(memberName)
+            .address(address)
+            .build();
     }
 
     private static Album createAlbum(int stockQuantity) {
@@ -154,13 +185,6 @@ class OrderServiceTest {
             .name("앨범")
             .price(10_000)
             .stockQuantity(stockQuantity)
-            .build();
-    }
-
-    private static Member createMember(Address address) {
-        return Member.builder()
-            .name("유저")
-            .address(address)
             .build();
     }
 
